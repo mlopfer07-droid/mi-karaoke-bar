@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.bar.karaoke;
 
 public class Peticion {
     private String nombre;
@@ -16,3 +16,4 @@ public class Peticion {
     public String getArtista() { return artista; }
     public void setArtista(String artista) { this.artista = artista; }
 }
+
