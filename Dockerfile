@@ -1,20 +1,10 @@
-# Usamos Java 17 con Maven ya instalado
+# Usamos Maven con Java 17 directamente
 FROM maven:3.8.4-openjdk-17-slim
-
-# Creamos la carpeta de la app
 WORKDIR /app
-
-# Copiamos solo el archivo de configuración primero
-COPY pom.xml .
-
-# Copiamos la carpeta del código
-COPY src ./src
-
-# Construimos el proyecto directamente con maven
+# Copiamos todo el proyecto
+COPY . .
+# Compilamos sin usar el archivo mvnw
 RUN mvn clean package -DskipTests
-
-# Exponemos el puerto
 EXPOSE 8080
-
-# Arrancamos el karaoke
+# Arrancamos el archivo que se genera
 CMD ["java", "-jar", "target/karaoke-0.0.1-SNAPSHOT.jar"]
