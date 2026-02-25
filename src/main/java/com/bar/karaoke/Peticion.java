@@ -1,11 +1,14 @@
-package com.bar.karaoke;
+package com.example.demo;
 
 public class Peticion {
     private String nombre;
     private String cancion;
     private String artista;
 
-    // Getters y Setters
+    // Constructor vacío (OBLIGATORIO para que Java lea el JSON)
+    public Peticion() {}
+
+    // Getters y Setters (OBLIGATORIOS)
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
     public String getCancion() { return cancion; }
