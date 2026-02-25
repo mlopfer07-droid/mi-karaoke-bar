@@ -2,114 +2,37 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>RESGUARDO DE SOLICITUDES - Panel de Control</title>
-    <style>
-        body { background: #050505; color: #d4af37; font-family: 'Segoe UI', sans-serif; padding: 30px; }
-        header { border-bottom: 1px solid #d4af37; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-        h1 { text-transform: uppercase; letter-spacing: 3px; font-size: 20px; margin: 0; }
-        table { width: 100%; border-collapse: collapse; background: #0a0a0a; box-shadow: 0 0 20px rgba(0,0,0,1); }
-        th { background: #d4af37; color: #000; padding: 15px; text-transform: uppercase; font-size: 12px; }
-        td { padding: 18px; border-bottom: 1px solid #1a1a1a; text-align: center; color: #fff; }
-        .row-vip:hover { background: #111; }
-        .btn-done { background: transparent; border: 1px solid #d4af37; color: #d4af37; padding: 8px 20px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
-        .btn-done:hover { background: #d4af37; color: #000; }
-        .empty-msg { padding: 40px; color: #555; font-style: italic; }
-        /* Animación suave para cuando desaparece la fila */
-        .fade-out { opacity: 0; transform: translateX(20px); transition: 0.5s; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Karaoke</title>
+    
+    <script>
+        if (sessionStorage.getItem('admin_auth') !== 'true') {
+            window.location.href = "login.html";
+        }
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Gestión de Turnos</h1>
-        <div id="reloj"></div>
-    </header>
+    <div class="container">
+        <button onclick="logout()" style="float: right; background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Cerrar Sesión</button>
+        
+        <h1>Panel de Administración</h1>
+        <p>Gestión de cola de canciones</p>
+        
+        <div id="lista-canciones">
+            </div>
+    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Solicitante</th>
-                <th>Canción</th>
-                <th>Artista</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tbody id="tablaAdmin">
-        </tbody>
-    </table>
-
+    <script src="script.js"></script>
     <script>
-        let atendidos = JSON.parse(localStorage.getItem('karaoke_atendidos')) || [];
-
-        async function cargarPeticiones() {
-            try {
-                const res = await fetch('https://karaoke-bar-d7qa.onrender.com/lista');
-                const datos = await res.json();
-                const tbody = document.getElementById('tablaAdmin');
-                let html = "";
-
-                // Filtrado por ID único (nombre + canción + artista)
-                const datosLimpios = datos.filter((p) => {
-                    if (!p.nombre || p.nombre === "---") return false;
-                    const idUnico = btoa(unescape(encodeURIComponent(p.nombre + p.cancion + (p.artista || "")))).replace(/=/g, "");
-                    return !atendidos.includes(idUnico);
-                });
-
-                if (datosLimpios.length === 0) {
-                    html = "<tr><td colspan='4' class='empty-msg'>No hay solicitudes pendientes en la cola.</td></tr>";
-                } else {
-                    datosLimpios.forEach((p) => {
-                        const idUnico = btoa(unescape(encodeURIComponent(p.nombre + p.cancion + (p.artista || "")))).replace(/=/g, "");
-                        html += `
-                            <tr class="row-vip" id="fila-${idUnico}">
-                                <td style="color: #d4af37; font-weight: bold;">${p.nombre}</td>
-                                <td>${p.cancion}</td>
-                                <td style="color: #888;">${p.artista || 'Sin especificar'}</td>
-                                <td>
-                                    <button class="btn-done" onclick="marcarListo('${idUnico}')">FINALIZAR</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
-                
-                // Solo actualizamos el HTML si el número de filas cambió para evitar el "parpadeo"
-                if (tbody.innerHTML.trim() !== html.trim()) {
-                    tbody.innerHTML = html;
-                }
-            } catch (e) {
-                console.log("Conectando con el servidor...");
-            }
+        // Función para cerrar sesión
+        function logout() {
+            sessionStorage.removeItem('admin_auth');
+            window.location.href = "login.html";
         }
-
-        function marcarListo(id) {
-            // 1. Guardamos el ID en persistencia
-            if (!atendidos.includes(id)) {
-                atendidos.push(id);
-                localStorage.setItem('karaoke_atendidos', JSON.stringify(atendidos));
-            }
-
-            // 2. Eliminamos SOLO la fila visualmente con una animación
-            const fila = document.getElementById(`fila-${id}`);
-            if (fila) {
-                fila.classList.add('fade-out');
-                setTimeout(() => {
-                    fila.remove();
-                    // Si la tabla queda vacía tras borrar, ponemos el mensaje
-                    const tbody = document.getElementById('tablaAdmin');
-                    if (tbody.children.length === 0) {
-                        tbody.innerHTML = "<tr><td colspan='4' class='empty-msg'>No hay solicitudes pendientes en la cola.</td></tr>";
-                    }
-                }, 500);
-            }
-        }
-
-        setInterval(cargarPeticiones, 3000);
-        cargarPeticiones();
-
-        setInterval(() => {
-            const reloj = document.getElementById('reloj');
-            if(reloj) reloj.innerText = new Date().toLocaleTimeString();
-        }, 1000);
     </script>
 </body>
 </html>
