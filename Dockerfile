@@ -1,20 +1,20 @@
-# Usamos una imagen de Java 17
-FROM eclipse-temurin:17-jdk-alpine
+# Usamos Java 17 con Maven ya instalado
+FROM maven:3.8.4-openjdk-17-slim
 
-# Creamos una carpeta para nuestra app
+# Creamos la carpeta de la app
 WORKDIR /app
 
-# Copiamos todo lo que tienes en GitHub a esa carpeta
-COPY . .
+# Copiamos solo el archivo de configuración primero
+COPY pom.xml .
 
-# Le damos permiso al archivo que ayuda a compilar
-RUN chmod +x mvnw
+# Copiamos la carpeta del código
+COPY src ./src
 
-# Construimos el proyecto (esto crea el archivo .jar)
-RUN ./mvnw clean package -DskipTests
+# Construimos el proyecto directamente con maven
+RUN mvn clean package -DskipTests
 
-# Exponemos el puerto que usa Render
+# Exponemos el puerto
 EXPOSE 8080
 
-# Comando para arrancar el karaoke
+# Arrancamos el karaoke
 CMD ["java", "-jar", "target/karaoke-0.0.1-SNAPSHOT.jar"]
