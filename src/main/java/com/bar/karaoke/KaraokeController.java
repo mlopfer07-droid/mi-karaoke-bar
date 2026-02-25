@@ -1,25 +1,12 @@
-package com.bar.karaoke;
-
-import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.List;
-
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // <--- AÑADE ESTO
 public class KaraokeController {
-
-    private List<String> listaPeticiones = new ArrayList<>();
+    
+    // ... tu lista ...
 
     @PostMapping("/pedir")
-    public String recibirCancion(@RequestBody Peticion peticion) {
-        String registro = "🎤 " + peticion.getNombre() + " quiere cantar: " + peticion.getCancion();
-        listaPeticiones.add(registro);
-        System.out.println("NUEVA PETICIÓN EN EL BAR: " + registro);
+    public String pedirCancion(@RequestBody Peticion p) { // <--- AÑADE EL @RequestBody
+        listaPeticiones.add(p);
         return "OK";
-    }
-
-    @GetMapping("/lista")
-    public List<String> verLista() {
-        return listaPeticiones;
     }
 }
