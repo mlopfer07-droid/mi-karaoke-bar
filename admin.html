@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>RESGUARDO DE SOLICITUDES - Panel de Control</title>
+    <style>
+        body { background: #050505; color: #d4af37; font-family: 'Segoe UI', sans-serif; padding: 30px; }
+        header { border-bottom: 1px solid #d4af37; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { text-transform: uppercase; letter-spacing: 3px; font-size: 20px; margin: 0; }
+        table { width: 100%; border-collapse: collapse; background: #0a0a0a; box-shadow: 0 0 20px rgba(0,0,0,1); }
+        th { background: #d4af37; color: #000; padding: 15px; text-transform: uppercase; font-size: 12px; }
+        td { padding: 18px; border-bottom: 1px solid #1a1a1a; text-align: center; color: #fff; }
+        .row-vip:hover { background: #111; }
+        .btn-done { background: transparent; border: 1px solid #d4af37; color: #d4af37; padding: 8px 20px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        .btn-done:hover { background: #d4af37; color: #000; }
+        .empty-msg { padding: 40px; color: #555; font-style: italic; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Gestión de Turnos</h1>
+        <div id="reloj"></div>
+    </header>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Solicitante</th>
+                <th>Canción</th>
+                <th>Artista</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="tablaAdmin">
+            </tbody>
+    </table>
+
+    <script>
+        let atendidos = []; // Lista local de IDs que ya has marcado como finalizados
+
+        async function cargarPeticiones() {
+            try {
+                // Conectamos con tu servidor en Render
+                const res = await fetch('https://karaoke-bar-d7qa.onrender.com/lista');
+                const datos = await res.json();
+                const tbody = document.getElementById('tablaAdmin');
+                let html = "";
+
+                // FILTRADO DINÁMICO:
+                // 1. Que el nombre exista.
+                // 2. Que no sea una fila vacía ("---").
+                // 3. Que no esté en tu lista local de "atendidos".
+                const datosLimpios = datos.filter((p, index) => {
+                    const id = p.nombre + p.cancion + index;
+                    return p.nombre && p.nombre !== "---" && !atendidos.includes(id);
+                });
+
+                if (datosLimpios.length === 0) {
+                    html = "<tr><td colspan='4' class='empty-msg'>No hay solicitudes pendientes en la cola.</td></tr>";
+                } else {
+                    datosLimpios.forEach((p, index) => {
+                        const id = p.nombre + p.cancion + index;
+                        html += `
+                            <tr class="row-vip">
+                                <td style="color: #d4af37; font-weight: bold;">${p.nombre}</td>
+                                <td>${p.cancion}</td>
+                                <td style="color: #888;">${p.artista || 'Sin especificar'}</td>
+                                <td><button class="btn-done" onclick="marcarListo('${id}')">FINALIZAR</button></td>
+                            </tr>
+                        `;
+                    });
+                }
+                tbody.innerHTML = html;
+            } catch (e) {
+                console.log("Esperando conexión con el servidor...");
+            }
+        }
+
+        // Función para quitar la fila de tu vista al pulsar el botón
+        function marcarListo(id) {
+            atendidos.push(id);
+            cargarPeticiones(); // Refresco instantáneo
+        }
+
+        // Refresco automático cada 3 segundos para ver nuevas peticiones
+        setInterval(cargarPeticiones, 3000);
+        
+        // Carga inicial al abrir la página
+        cargarPeticiones();
+
+        // Reloj en tiempo real para el header
+        setInterval(() => {
+            document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
+        }, 1000);
+    </script>
+</body>
+</html>
