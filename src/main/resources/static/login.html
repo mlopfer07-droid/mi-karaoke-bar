@@ -3,36 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso Administrador - Karaoke MOËT</title>
+    <title>Acceso Administrador - MOËT</title>
     <style>
         body { background: #050505; color: #d4af37; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-card { background: #1a1a1a; padding: 40px; border-radius: 15px; border: 1px solid #d4af37; text-align: center; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
-        input { background: #000; border: 1px solid #d4af37; color: #fff; padding: 10px; margin: 20px 0; border-radius: 5px; width: 100%; box-sizing: border-box; }
-        button { background: #d4af37; color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; }
-        #error { color: #ff4d4d; font-size: 12px; margin-top: 10px; }
+        .login-card { background: #1a1a1a; padding: 40px; border-radius: 15px; border: 1px solid #d4af37; text-align: center; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); width: 300px; }
+        h2 { letter-spacing: 2px; font-size: 18px; }
+        input { background: #000; border: 1px solid #d4af37; color: #fff; padding: 12px; margin: 20px 0; border-radius: 5px; width: 100%; box-sizing: border-box; outline: none; }
+        button { background: #d4af37; color: #000; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; text-transform: uppercase; }
+        button:hover { background: #f2d06b; }
+        #error { color: #ff4d4d; font-size: 13px; margin-top: 15px; font-weight: bold; min-height: 18px; }
     </style>
 </head>
 <body>
     <div class="login-card">
-        <h2>ÁREA PRIVADA</h2>
-        <p>Introduce la clave maestra</p>
-        <input type="password" id="pass" placeholder="Contraseña">
-        <button onclick="validar()">ENTRAR</button>
+        <h2>KARAOKE ADMIN</h2>
+        <input type="password" id="pass" placeholder="Contraseña" onkeypress="checkEnter(event)">
+        <button onclick="validar()">Entrar</button>
         <div id="error"></div>
     </div>
 
     <script>
+        // Permitir entrar pulsando la tecla Enter
+        function checkEnter(e) {
+            if (e.key === 'Enter') validar();
+        }
+
         function validar() {
             const passInput = document.getElementById('pass').value;
-            const error = document.getElementById('error');
+            const errorDiv = document.getElementById('error');
             
-            // AQUÍ PONES TU CONTRASEÑA (Cámbiala por la que quieras)
+            // LA CONTRASEÑA ES: MOET2026 (en mayúsculas)
             if (passInput === "MOET2026") {
-                // Guardamos un "ticket" en el navegador para que sepa que estamos logueados
-                sessionStorage.setItem('sesionAdmin', 'activa');
+                // IMPORTANTE: Este nombre 'admin_auth' debe ser igual en admin.html
+                sessionStorage.setItem('admin_auth', 'true');
+                
+                // Redirigir
                 window.location.href = "admin.html";
             } else {
-                error.innerText = "CONTRASEÑA INCORRECTA";
+                errorDiv.innerText = "CONTRASEÑA INCORRECTA";
+                document.getElementById('pass').value = "";
             }
         }
     </script>
